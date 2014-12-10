@@ -1,0 +1,51 @@
+require 'rake/testtask'
+
+SPEC = Gem::Specification.new do |spec|
+  spec.name = "precedence"
+  spec.version = "1.0"
+  spec.author = "Farrel Lifson"
+  spec.email = "farrel.lifson@gmail.com"
+  spec.homepage = "http://www.aimred.com/projects/precedence"
+  spec.platform = Gem::Platform::RUBY
+  spec.summary = "A library to create and analyze precedence networks."
+  spec.files = Dir.glob("{lib,examples,test}/**/*")
+  spec.require_path = "lib"
+  spec.autorequire = "precedence"
+  spec.has_rdoc = true
+  spec.extra_rdoc_files = ["README","CHANGELOG"]
+end
+
+# Rake::GemPackageTask.new(SPEC) do |pkg|
+#   pkg.need_tar = true
+# end
+# 
+# Rake::RDocTask.new do |rdoc|
+#   rdoc.main = "README"
+#   rdoc.rdoc_files.include("README","CHANGELOG","lib/**/*.rb")
+#   rdoc.rdoc_dir = "doc"
+# end
+
+Rake::TestTask.new do |test|
+  test.test_files = 'test/ts_precedence.rb' 
+end
+
+# task :stats  do
+#   require 'code_statistics'
+#   CodeStatistics.new(
+#     ["Code", "lib"],
+#     ["Units", "test"]).to_s
+# end
+
+task :clobber_test_file_output do
+  outputFiles = ['test_to_dot.dot','test_to_dot.png','test_to_yaml.yaml']  
+  command  = 'rm'
+  puts "#{command} #{outputFiles.join(' ')} "
+  system(command,*outputFiles)
+end
+
+task :clean => [:clobber_test_file_output,:clobber_rcov,:clobber_rdoc]
+
+
+# Rcov::RcovTask.new do |rcov|
+#   rcov.test_files = FileList['test/ts_precedence.rb']
+# end

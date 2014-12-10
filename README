@@ -1,0 +1,95 @@
+= Precedence
+
+Precedence is a library that allows for the creation, manipulation and analysis
+of precedence networks.
+
+== Download and Install
+
+Available as a RubyGem from Rubyforge. To install
+ $ gem install precedence
+will fetch the latest gem from Rubyforge and install it.
+
+Source can also be downloaded from  http://rubyforge.org/projects/precedence.
+
+== Example Usage
+ require('precedence')
+ 
+ # Set up network
+ net = Precedence::Network.new('Begin','End')
+ net.new_activity('act-1-1') do |act|
+ 	act.duration = 3
+ 	act.description = 'System specification'
+ end
+ net.new_activity('act-1-2' do |act|
+ 	act.duratiom = 2
+ 	act.description = 'Review'
+ end
+ net.new_activity('act-1-3') do |act|
+ 	act.duration = 2
+ 	act.description = 'System re-specification'
+ end
+ net.new_activity('act-2-1') do |act|
+ 	act.duration = 3
+ 	act.description = 'Test tool design'
+ end
+ net.new_activity('act-2-2') do |act| 
+ 	act.duration = 5
+ 	act.description = 'Test tool implementation'
+ end
+ net.new_activity('act-3-1')
+ 	act.duration = 3
+ 	act.description = 'System design'
+ end
+ net.new_activity('act-3-2') do |act|
+ 	act.duration = 12
+ 	act.description = 'System implementation'
+ end
+ net.new_activity('act-2-3') do |act| 
+ 	act.duration = 10
+ 	act.description = 'System testing'
+ end
+ net.connect('act-1-1','act-1-2')
+ net.connect('act-1-2','act-1-3')
+ net.connect('act-1-3','act-3-1')
+ net.connect('act-1-2','act-2-1')
+ net.connect('act-2-1','act-2-2')
+ net.connect('act-2-2','act-3-2')
+ net.connect('act-3-1','act-3-2')
+ net.connect('act-3-2','act-2-3')
+ net.fix_connections!
+ 
+ # Generate a diagram
+ File.open('network.dot',File::CREAT|File::TRUNC|File::WRONLY) do |file|
+	file.puts(net.to_dot)
+ end
+ system("dot","-Tpng","-onetwork.png","network.dot")
+ 
+ # Perform some analysis of the activities
+ activity = net.activities['act-1-2']
+ activity.on_critical_path? # => true 
+ activity.earliest_start # => 3.0
+ activity.latest_finish # => 5.0
+ activity.total_float  # => 0 - activities on the critical path have no float
+ 
+ # Save the network to a YAML file
+ File.open('network.yaml',File::CREAT|File::TRUNC|File::WRONLY do |file|
+ 	file.puts(net.to_yaml)
+ end
+ 
+ # Read the network from a YAML file
+ newNet = Precedence::Network.from_yaml(File.new('network.yaml',File::RDONLY))
+ 
+== Documentation
+
+The Precedence API online documentation is available at 
+http://precedence.rubyforge.org. 
+
+Refer to the CHANGELOG and TODO files for past changes and upcoming plans.
+
+== Credits
+
+Farrel Lifson <farrel@lifson.info>
+
+== License
+
+This software is made available under the BSD license.

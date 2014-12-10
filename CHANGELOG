@@ -1,0 +1,123 @@
+= 0.8
+
+* Added multiple durations. An activity has the following durations associated
+   activity = Precedence::Activity.new('activity1') do |act|
+    act.expected_duration = 2 # This is what would've been act.duration
+    act.minimum_duration = 1 # The minimum time the activity could need
+    act.maximum_duration = 4 # The maximum time the activity should need
+   end
+
+  From this the following may be determined:
+   activity.mean_duration
+   activity.standard_deviation
+   activity.variance
+
+  A Beta distribution is assumed to be used for the probability density function
+  and if certain assumptions are made the following hold
+  - The mean_duration is calculated as: 
+     (4*expected_duration + minimum_duration + maximum_duration)/6
+  - The standard deviations is: 
+     (maximum_duration - minimum_duration)/6
+  - The variance is the standard deviation squared.
+
+  The activity.duration attribute is still present and it is configurable to 
+  allow the differing duration types. The duration to be used is set using the
+  Activity.duration_type attribute. For instance assuming we have the following 
+  two activities set up:
+   act1 = Precedence::Activity.new('a1') do |activity|
+    activity.expected_duration = 2
+    activity.minimum_duration = 1
+    activity.maximum_duration = 3
+   end
+   act2 = Precedence::Activity.new('a2') do |activity|
+    activity.expected_duration = 3
+    activity.minimum_duration = 1
+    activity.maximum_duration = 5
+   end
+   act1.add_post_activities(act2)
+   # Duration type is initially set to the expected duration
+   act2.earliest_finish # => 5
+   # Change duration type to the maximum duration
+   act2.duration_type = Activity::MAXIMUM_DURATION
+   act2.earliest_finish # => 7
+
+  The allowed duration types are : EXPECTED_DURATION, MEAN_DURATION, 
+  MINIMUM_DURATION and MAXIMUM_DURATION
+
+* Moved the ActivityHash and ResourceHash into the Precedence::Utilities module.
+
+* Added Activity.active_at?(time) which returns true if the activity is active at
+  time.
+
+* Added Network.activities_at_time(time) which returns an array of activities 
+  active at that time.
+  
+* Added Activity.active_during?(range) which returns true if the activity is active
+  during the time range given.
+
+* Added Network.activities_during_time(range) which returns an array of activities
+  active during the range given.
+
+* Added Network.each_time_period(tick,&block) which iterates over the duration
+  of the project in time steps of the tick parameter, yielding an array of
+  activities active at each time to the block.
+  
+* Removed the StartActivity and FinishActivity of the network from the 
+  Network.activities hash. They are still avaialable in the hash if needed
+   precNetwork.activities['start']
+   precNetwork.activities['finish'] 
+  will return the StartActivity/FinishActivity however
+   precNetwork.activities.each
+  will not include them. I am still thinking of a way to get rid of them altogether.
+  
+* Added Network.reference_exists? which will return true if the reference is in the network.  
+
+
+= 0.7
+* Added ability to load from and save networks to YAML files.
+
+* Split StartFinishActivity into seperate StartActivity and FinishActivity 
+  classes.
+
+* Added StartActivity::REFERENCE and Network::START as well as 
+  FinishActivity::REFERENCE and Network::FINISH as constants to hold the 
+  reserved references for the start and finish activities in a network.
+
+* Totally changed the way activities are created in both the Activity and
+  Network classes.   
+   Activity.new(reference,duration,description,post_activities,pre_activities)   
+  is now
+   Activity.new(reference) do |activity|
+     activity.duration = duration
+     activity.description = description
+     activity.add_post_activities(post_activities)
+     activity.add_pre_activities(pre_activities)
+   end   
+
+  The same applies to the Network.new_activity method
+   Network.new_activity(reference,duration,description,post_activities,pre_activities)
+  has become
+   network.new_activity(reference) do |activity|
+    activity.duration = duration
+    activity.description = description
+    activity.add_pre_activities(pre_activities)
+   end
+   network.connect(reference,post_activities)
+   pre_activities.each do |pre_act_ref|
+    network.connect(pre_act_ref,reference)
+   end
+
+  In fact the block from his method is passed directly to the Activity.new 
+  method. While you could use add_post_activities and add_pre_activities in this
+  block it is better to use Network.connect when dealing with the Network class.
+
+* Added resources to activities. They can be set via the activity.resources hash
+
+= 0.6: Initial Release
+Basic precedence network functionality:
+
+* Earlist/latest start/finish
+
+* Generating float and determining critical path
+
+* Diagram generation via dot files	
