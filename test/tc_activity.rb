@@ -1,4 +1,4 @@
-require('lib/precedence/activity')
+require_relative('../lib/precedence/activity')
 
 class TC_Activity < Test::Unit::TestCase #:nodoc:
 
@@ -458,10 +458,10 @@ class TC_Activity < Test::Unit::TestCase #:nodoc:
 	end
 	
 	def test_duration_type
-		activity = Precedence::Activity.new('act1') do |activity|
-			activity.expected_duration = 2
-			activity.maximum_duration = 4
-			activity.minimum_duration = 1
+		activity = Precedence::Activity.new('act1') do |new_activity|
+			new_activity.expected_duration = 2
+			new_activity.maximum_duration = 4
+			new_activity.minimum_duration = 1
 		end
 		assert_equal(13.0/6,activity.mean_duration)
 		assert_equal(activity.duration,activity.expected_duration)
@@ -554,9 +554,9 @@ class TC_StartFinishActivity < Test::Unit::TestCase
 		assert_equal(@finish.description,finish.description)
 		assert_equal(@finish.duration,finish.duration)
 		
-		act = Precedence::Activity.new('act1') do |act|
-			act.expected_duration = 3
-			act.description = 'Activity One'
+		act = Precedence::Activity.new('act1') do |new_activity|
+			new_activity.expected_duration = 3
+			new_activity.description = 'Activity One'
 		end
 		assert_raises(RuntimeError) do
 			Precedence::StartActivity.from_yaml(act.to_yaml)
@@ -568,9 +568,9 @@ class TC_StartFinishActivity < Test::Unit::TestCase
 	end
 	
 	def test_register
-		act = Precedence::Activity.new('act1') do |act|
-			act.expected_duration = 1
-			act.description = 'Activity 1'
+		act = Precedence::Activity.new('act1') do |new_activity|
+			new_activity.expected_duration = 1
+			new_activity.description = 'Activity 1'
 		end
 		assert_raises(RuntimeError) do
 			act.add_pre_activities(@finish)

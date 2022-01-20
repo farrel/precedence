@@ -1,9 +1,9 @@
 require('test/unit')
 
-require('test/tc_activity')
-require('test/tc_network')
+require('./test/tc_activity')
+require('./test/tc_network')
 
-require('lib/precedence/utilities')
+require('./lib/precedence/utilities')
 
 class TS_Precedence < Test::Unit::TestSuite
 	def initialize(name="Precedence Test Suite")

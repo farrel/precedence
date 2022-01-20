@@ -1,4 +1,4 @@
-require('lib/precedence/network')
+require_relative('../lib/precedence/network')
 
 class TC_ActivityHash < Test::Unit::TestCase
 	def setup
